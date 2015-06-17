@@ -1,10 +1,11 @@
-try:
-    from unittest2 import skipIf
-except ImportError:
-    from unittest import skipIf
+import sys
+#if sys.version_info < (2, 7):
+#    from unittest2 import skipIf
+#else:
+from unittest import skipIf
 
-from django import template
 import django
+from django import template
 from django.contrib.auth.models import AnonymousUser
 from django.template import Template
 from django.template.base import VariableNode

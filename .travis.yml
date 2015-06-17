@@ -1,7 +1,6 @@
 language: python
 sudo: false
 python:
- - "2.6"
  - "2.7"
  - "3.3"
  - "3.4"
@@ -15,10 +14,6 @@ install:
 script: ./run.sh test
 matrix:
   exclude:
-    - python: "2.6"
-      env: DJANGO_VERSION=1.7
-    - python: "2.6"
-      env: DJANGO_VERSION=1.8
     - python: "3.3"
       env: DJANGO_VERSION=1.4
     - python: "3.4"

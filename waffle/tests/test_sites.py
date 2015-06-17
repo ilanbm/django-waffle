@@ -27,7 +27,7 @@ class SiteTests(TestCase):
 
         self.assertTrue(waffle.switch_is_active(name))
 
-        with self.settings(SITE_ID=2):
+        with self.settings(SITE_ID=self.site2.id):
             self.assertFalse(waffle.switch_is_active(name))
 
     def test_switch_site_default(self):
@@ -36,7 +36,7 @@ class SiteTests(TestCase):
 
         self.assertTrue(waffle.switch_is_active(name))
 
-        with self.settings(SITE_ID=2):
+        with self.settings(SITE_ID=self.site2.id):
             self.assertTrue(waffle.switch_is_active(name))
 
     def test_sample_by_site(self):
@@ -46,7 +46,7 @@ class SiteTests(TestCase):
 
         self.assertTrue(waffle.sample_is_active(name))
 
-        with self.settings(SITE_ID=2):
+        with self.settings(SITE_ID=self.site2.id):
             self.assertFalse(waffle.sample_is_active(name))
 
     def test_sample_site_default(self):
@@ -55,7 +55,7 @@ class SiteTests(TestCase):
 
         self.assertTrue(waffle.sample_is_active(name))
 
-        with self.settings(SITE_ID=2):
+        with self.settings(SITE_ID=self.site2.id):
             self.assertTrue(waffle.sample_is_active(name))
 
     def test_flag_by_site(self):
@@ -67,6 +67,6 @@ class SiteTests(TestCase):
         response = process_request(request, views.flag_in_view)
         self.assertContains(response, b'on')
 
-        with self.settings(SITE_ID=2):
+        with self.settings(SITE_ID=self.site2.id):
             response = process_request(request, views.flag_in_view)
             self.assertContains(response, b'off')

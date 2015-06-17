@@ -1,4 +1,8 @@
-from unittest import skipIf
+try:
+    from unittest2 import skipIf
+except ImportError:
+    from unittest import skipIf
+
 from django import template
 import django
 from django.contrib.auth.models import AnonymousUser

@@ -46,7 +46,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'test_app.urls'
 
 TEMPLATE_LOADERS = (
-    'jingo.Loader',
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
@@ -73,3 +72,5 @@ if django.VERSION < (1, 7):
     SOUTH_MIGRATION_MODULES = {
         'waffle': 'waffle.south_migrations'
     }
+
+    TEMPLATE_LOADERS = ('jingo.Loader',) + TEMPLATE_LOADERS

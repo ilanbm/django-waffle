@@ -1,4 +1,6 @@
+from unittest import skipIf
 from django import template
+import django
 from django.contrib.auth.models import AnonymousUser
 from django.template import Template
 from django.template.base import VariableNode
@@ -48,6 +50,7 @@ class WaffleTemplateTests(TestCase):
         assert 'switch off' in content
         assert 'sample' in content
 
+    @skipIf(django.VERSION > (1, 7), "Skip this test for Django > 1.7")
     @override_settings(TEMPLATE_LOADERS=(
         'jingo.Loader',
         'django.template.loaders.filesystem.Loader',

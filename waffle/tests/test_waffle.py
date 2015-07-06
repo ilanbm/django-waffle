@@ -283,50 +283,50 @@ class WaffleTests(TestCase):
 class SwitchTests(TestCase):
     def test_switch_active(self):
         switch = Switch.objects.create(name='myswitch', active=True)
-        assert waffle.switch_is_active(switch.name)
+        assert waffle.switch_is_active(get(), switch.name)
 
     def test_switch_inactive(self):
         switch = Switch.objects.create(name='myswitch', active=False)
-        assert not waffle.switch_is_active(switch.name)
+        assert not waffle.switch_is_active(get(), switch.name)
 
     def test_switch_active_from_cache(self):
         """Do not make two queries for an existing active switch."""
         switch = Switch.objects.create(name='myswitch', active=True)
         # Get the value once so that it will be put into the cache
-        assert waffle.switch_is_active(switch.name)
+        assert waffle.switch_is_active(get(), name)
         queries = len(connection.queries)
-        assert waffle.switch_is_active(switch.name)
+        assert waffle.switch_is_active(get(), switch.name)
         self.assertEqual(queries, len(connection.queries), 'We should only make one query.')
 
     def test_switch_inactive_from_cache(self):
         """Do not make two queries for an existing inactive switch."""
         switch = Switch.objects.create(name='myswitch', active=False)
         # Get the value once so that it will be put into the cache
-        assert not waffle.switch_is_active(switch.name)
+        assert not waffle.switch_is_active(get(), switch.name)
         queries = len(connection.queries)
-        assert not waffle.switch_is_active(switch.name)
+        assert not waffle.switch_is_active(get(), switch.name)
         self.assertEqual(queries, len(connection.queries), 'We should only make one query.')
 
     def test_undefined(self):
-        assert not waffle.switch_is_active('foo')
+        assert not waffle.switch_is_active(get(), 'foo')
 
     @override_settings(WAFFLE_SWITCH_DEFAULT=True)
     def test_undefined_default(self):
-        assert waffle.switch_is_active('foo')
+        assert waffle.switch_is_active(get(), 'foo')
 
 
 class SampleTests(TestCase):
     def test_sample_100(self):
         sample = Sample.objects.create(name='sample', percent='100.0')
-        assert waffle.sample_is_active(sample.name)
+        assert waffle.sample_is_active(get(), sample.name)
 
     def test_sample_0(self):
         sample = Sample.objects.create(name='sample', percent='0.0')
-        assert not waffle.sample_is_active(sample.name)
+        assert not waffle.sample_is_active(get(), sample.name)
 
     def test_undefined(self):
-        assert not waffle.sample_is_active('foo')
+        assert not waffle.sample_is_active(get(), 'foo')
 
     @override_settings(WAFFLE_SAMPLE_DEFAULT=True)
     def test_undefined_default(self):
-        assert waffle.sample_is_active('foo')
+        assert waffle.sample_is_active(get(), 'foo')

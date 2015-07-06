@@ -20,7 +20,7 @@ def flag_is_active(request, flag_name):
     from .models import cache_flag, Flag
     from .compat import cache
 
-    current_site = Site.objects.get_current()
+    current_site = Site.objects.get_current(request)
     flag = cache.get(keyfmt(get_setting('FLAG_CACHE_KEY'), flag_name, current_site))
     if flag is None:
         try:
@@ -108,11 +108,11 @@ def flag_is_active(request, flag_name):
     return False
 
 
-def switch_is_active(switch_name):
+def switch_is_active(request, switch_name):
     from .models import cache_switch, Switch
     from .compat import cache
 
-    current_site = Site.objects.get_current()
+    current_site = Site.objects.get_current(request)
     switch = cache.get(keyfmt(get_setting('SWITCH_CACHE_KEY'), switch_name, current_site))
     if switch is None:
         try:
@@ -127,11 +127,11 @@ def switch_is_active(switch_name):
     return switch.active
 
 
-def sample_is_active(sample_name):
+def sample_is_active(request, sample_name):
     from .models import cache_sample, Sample
     from .compat import cache
 
-    current_site = Site.objects.get_current()
+    current_site = Site.objects.get_current(request)
     sample = cache.get(keyfmt(get_setting('SAMPLE_CACHE_KEY'), sample_name, current_site))
     if sample is None:
         try:

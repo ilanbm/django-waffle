@@ -27,9 +27,9 @@ def waffle_switch(switch_name):
         @wraps(view, assigned=available_attrs(view))
         def _wrapped_view(request, *args, **kwargs):
             if switch_name.startswith('!'):
-                active = not switch_is_active(switch_name[1:])
+                active = not switch_is_active(request, switch_name[1:])
             else:
-                active = switch_is_active(switch_name)
+                active = switch_is_active(request, switch_name)
 
             if not active:
                 raise Http404

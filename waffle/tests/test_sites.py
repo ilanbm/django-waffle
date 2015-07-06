@@ -25,38 +25,38 @@ class SiteTests(TestCase):
         switch1 = Switch.objects.create(name=name, active=True, site=self.site1)
         switch2 = Switch.objects.create(name=name, active=False, site=self.site2)
 
-        self.assertTrue(waffle.switch_is_active(name))
+        self.assertTrue(waffle.switch_is_active(get(), name))
 
         with self.settings(SITE_ID=2):
-            self.assertFalse(waffle.switch_is_active(name))
+            self.assertFalse(waffle.switch_is_active(get(), name))
 
     def test_switch_site_default(self):
         name = 'myswitch'
         switch = Switch.objects.create(name=name, active=True) # no site given
 
-        self.assertTrue(waffle.switch_is_active(name))
+        self.assertTrue(waffle.switch_is_active(get(), name))
 
         with self.settings(SITE_ID=2):
-            self.assertTrue(waffle.switch_is_active(name))
+            self.assertTrue(waffle.switch_is_active(get(), name))
 
     def test_sample_by_site(self):
         name = 'sample'
         sample1 = Sample.objects.create(name=name, percent='100.0', site=self.site1)
         sample2 = Sample.objects.create(name=name, percent='0.0', site=self.site2)
 
-        self.assertTrue(waffle.sample_is_active(name))
+        self.assertTrue(waffle.sample_is_active(get(), name))
 
         with self.settings(SITE_ID=2):
-            self.assertFalse(waffle.sample_is_active(name))
+            self.assertFalse(waffle.sample_is_active(get(), name))
 
     def test_sample_site_default(self):
         name = 'sample'
         sample = Sample.objects.create(name=name, percent='100.0') # no site given
 
-        self.assertTrue(waffle.sample_is_active(name))
+        self.assertTrue(waffle.sample_is_active(get(), name))
 
         with self.settings(SITE_ID=2):
-            self.assertTrue(waffle.sample_is_active(name))
+            self.assertTrue(waffle.sample_is_active(get(), name))
 
     def test_flag_by_site(self):
         name = 'myflag'

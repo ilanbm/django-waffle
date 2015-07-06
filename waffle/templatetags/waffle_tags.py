@@ -68,13 +68,13 @@ def flag(parser, token):
 
 @register.tag
 def switch(parser, token):
-    condition = lambda request, name: switch_is_active(name)
+    condition = lambda request, name: switch_is_active(request, name)
     return WaffleNode.handle_token(parser, token, 'switch', condition)
 
 
 @register.tag
 def sample(parser, token):
-    condition = lambda request, name: sample_is_active(name)
+    condition = lambda request, name: sample_is_active(request, name)
     return WaffleNode.handle_token(parser, token, 'sample', condition)
 
 

@@ -19,14 +19,22 @@ def disable_for_all(ma, request, qs):
 disable_for_all.short_description = 'Disable selected flags for everyone.'
 
 
-class FlagAdmin(admin.ModelAdmin):
+class M2MSitesMixin(object):
+    def get_sites(self, obj):
+        return "\n".join([x for x in obj.site.all()])
+
+
+class FlagAdmin(M2MSitesMixin, admin.ModelAdmin):
     actions = [enable_for_all, disable_for_all]
     date_hierarchy = 'created'
-    list_display = ('name', 'site', 'note', 'everyone', 'percent', 'superusers',
+    list_display = ('name', 'get_sites', 'note', 'everyone', 'percent', 'superusers',
                     'staff', 'authenticated', 'languages')
     list_filter = ('site', 'everyone', 'superusers', 'staff', 'authenticated')
     raw_id_fields = ('users', 'groups')
     ordering = ('-id',)
+
+    def get_sites(self, obj):
+        return "\n".join([x for x in obj.site.all()])
 
 
 def enable_switches(ma, request, qs):
@@ -43,17 +51,17 @@ def disable_switches(ma, request, qs):
 disable_switches.short_description = 'Disable the selected switches.'
 
 
-class SwitchAdmin(admin.ModelAdmin):
+class SwitchAdmin(M2MSitesMixin, admin.ModelAdmin):
     actions = [enable_switches, disable_switches]
     date_hierarchy = 'created'
-    list_display = ('name', 'site', 'active', 'note', 'created', 'modified')
+    list_display = ('name', 'get_sites', 'active', 'note', 'created', 'modified')
     list_filter = ('site', 'active',)
     ordering = ('-id',)
 
 
-class SampleAdmin(admin.ModelAdmin):
+class SampleAdmin(M2MSitesMixin, admin.ModelAdmin):
     date_hierarchy = 'created'
-    list_display = ('name', 'site', 'percent', 'note', 'created', 'modified')
+    list_display = ('name', 'get_sites', 'percent', 'note', 'created', 'modified')
     list_filter = ('site', )
     ordering = ('-id',)
 

@@ -30,7 +30,7 @@ def _generate_waffle_js(request):
     if samples is None:
         samples = Sample.objects.values_list('name', flat=True)
         cache.add(keyfmt(get_setting('ALL_SAMPLES_CACHE_KEY')), samples)
-    sample_values = [(s, sample_is_active(s)) for s in samples]
+    sample_values = [(s, sample_is_active(request, s)) for s in samples]
 
     return loader.render_to_string('waffle/waffle.js', {
         'flags': flag_values,

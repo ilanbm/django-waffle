@@ -49,7 +49,7 @@ class OverrideSwitchTests(TestCase):
 
         @override_switch('foo', active=True)
         def test_enabled():
-            assert waffle.switch_is_active('foo')
+            assert waffle.switch_is_active(req(), 'foo')
 
         test_enabled()
 
@@ -155,7 +155,7 @@ class OverrideSampleTests(TestCase):
         Sample.objects.create(name='foo', percent='0.0')
 
         with override_sample('foo', active=True):
-            assert waffle.sample_is_active('foo')
+            assert waffle.sample_is_active(req(), 'foo')
 
         with override_sample('foo', active=False):
             assert not waffle.sample_is_active(req(), 'foo')
@@ -170,7 +170,7 @@ class OverrideSampleTests(TestCase):
             assert waffle.sample_is_active(req(), 'foo')
 
         with override_sample('foo', active=False):
-            assert not waffle.sample_is_active('foo')
+            assert not waffle.sample_is_active(req(), 'foo')
 
         self.assertEquals(Decimal('50.0'),
                           Sample.objects.get(name='foo').percent)

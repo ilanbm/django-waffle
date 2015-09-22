@@ -21,10 +21,11 @@ def flag_is_active(request, flag_name):
     from .compat import cache
 
     current_site = Site.objects.get_current(request)
-    flag = cache.get(keyfmt(get_setting('FLAG_CACHE_KEY'), flag_name, current_site))
+    flag = cache.get(keyfmt(get_setting('FLAG_CACHE_KEY'),
+                            flag_name, current_site))
     if flag is None:
         try:
-            flag = Flag.objects.get(name=flag_name, site=current_site)
+            flag = Flag.objects.get(name=flag_name, site__in=[current_site])
             cache_flag(instance=flag)
         except Flag.DoesNotExist:
             try:
@@ -113,14 +114,17 @@ def switch_is_active(request, switch_name):
     from .compat import cache
 
     current_site = Site.objects.get_current(request)
-    switch = cache.get(keyfmt(get_setting('SWITCH_CACHE_KEY'), switch_name, current_site))
+    switch = cache.get(keyfmt(get_setting('SWITCH_CACHE_KEY'),
+                              switch_name, current_site))
     if switch is None:
         try:
-            switch = Switch.objects.get(name=switch_name, site=current_site)
+            switch = Switch.objects.get(name=switch_name,
+                                        site__in=[current_site])
             cache_switch(instance=switch)
         except Switch.DoesNotExist:
             try:
-                switch = Switch.objects.get(name=switch_name, site__isnull=True)
+                switch = Switch.objects.get(name=switch_name,
+                                            site__isnull=True)
                 cache_switch(instance=switch)
             except Switch.DoesNotExist:
                 return get_setting('SWITCH_DEFAULT')
@@ -132,10 +136,12 @@ def sample_is_active(request, sample_name):
     from .compat import cache
 
     current_site = Site.objects.get_current(request)
-    sample = cache.get(keyfmt(get_setting('SAMPLE_CACHE_KEY'), sample_name, current_site))
+    sample = cache.get(keyfmt(get_setting('SAMPLE_CACHE_KEY'),
+                              sample_name, current_site))
     if sample is None:
         try:
-            sample = Sample.objects.get(name=sample_name, site=current_site)
+            sample = Sample.objects.get(name=sample_name,
+                                        site__in=[current_site])
             cache_sample(instance=sample)
         except Sample.DoesNotExist:
             try:

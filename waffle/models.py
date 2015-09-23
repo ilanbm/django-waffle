@@ -66,8 +66,8 @@ class Flag(models.Model):
 
     #site = models.ForeignKey(Site, blank=True, null=True,
     #                         related_name='waffle_flags')
-    site_new = models.ManyToManyField(Site, blank=True, null=True,
-                                      related_name="waffle_flags_m2m")
+    site = models.ManyToManyField(Site, blank=True, null=True,
+                                  related_name="waffle_flags_m2m")
 
     objects = FlagQuerySet.as_manager()
 
@@ -109,15 +109,16 @@ class Switch(models.Model):
         'Is this flag active?'))
     note = models.TextField(blank=True, help_text=(
         'Note where this Switch is used.'))
-    created = models.DateTimeField(default=datetime.now, db_index=True,
-        help_text=('Date when this Switch was created.'))
+    created = models.DateTimeField(default=datetime.now,
+                                   db_index=True,
+                                   help_text=('Date when this Switch was created.'))
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Switch was last modified.'))
 
     #site = models.ForeignKey(Site, blank=True, null=True,
     #                         related_name='waffle_switches')
-    site_new = models.ManyToManyField(Site, blank=True, null=True,
-                                      related_name="waffle_switches_m2m")
+    site = models.ManyToManyField(Site, blank=True, null=True,
+                                  related_name="waffle_switches_m2m")
 
     objects = SwitchQuerySet.as_manager()
 
@@ -161,15 +162,16 @@ class Sample(models.Model):
         'this sample will be active.'))
     note = models.TextField(blank=True, help_text=(
         'Note where this Sample is used.'))
-    created = models.DateTimeField(default=datetime.now, db_index=True,
-        help_text=('Date when this Sample was created.'))
+    created = models.DateTimeField(default=datetime.now,
+                                   db_index=True,
+                                   help_text=('Date when this Sample was created.'))
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Sample was last modified.'))
 
     #site = models.ForeignKey(Site, blank=True, null=True,
     #                         related_name='waffle_samples')
-    site_new = models.ManyToManyField(Site, blank=True, null=True,
-                                      related_name="waffle_samples_m2m")
+    site = models.ManyToManyField(Site, blank=True, null=True,
+                                  related_name="waffle_samples_m2m")
 
     objects = SampleQuerySet.as_manager()
 

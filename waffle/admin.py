@@ -29,13 +29,9 @@ class FlagAdmin(M2MSitesMixin, admin.ModelAdmin):
     date_hierarchy = 'created'
     list_display = ('name', 'get_sites', 'note', 'everyone', 'percent', 'superusers',
                     'staff', 'authenticated', 'languages')
-    #list_filter = ('site', 'everyone', 'superusers', 'staff', 'authenticated')
-    list_filter = ('everyone', 'superusers', 'staff', 'authenticated')
+    list_filter = ('get_sites', 'everyone', 'superusers', 'staff', 'authenticated')
     raw_id_fields = ('users', 'groups')
     ordering = ('-id',)
-
-    def get_sites(self, obj):
-        return "\n".join([x for x in obj.site.all()])
 
 
 def enable_switches(ma, request, qs):
@@ -56,15 +52,14 @@ class SwitchAdmin(M2MSitesMixin, admin.ModelAdmin):
     actions = [enable_switches, disable_switches]
     date_hierarchy = 'created'
     list_display = ('name', 'get_sites', 'active', 'note', 'created', 'modified')
-    #list_filter = ('site', 'active',)
-    list_filter = ('active',)
+    list_filter = ('get_sites', 'active',)
     ordering = ('-id',)
 
 
 class SampleAdmin(M2MSitesMixin, admin.ModelAdmin):
     date_hierarchy = 'created'
     list_display = ('name', 'get_sites', 'percent', 'note', 'created', 'modified')
-    #list_filter = ('site', )
+    list_filter = ('get_sites', )
     ordering = ('-id',)
 
 

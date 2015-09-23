@@ -29,7 +29,8 @@ class FlagAdmin(M2MSitesMixin, admin.ModelAdmin):
     date_hierarchy = 'created'
     list_display = ('name', 'get_sites', 'note', 'everyone', 'percent', 'superusers',
                     'staff', 'authenticated', 'languages')
-    list_filter = ('site', 'everyone', 'superusers', 'staff', 'authenticated')
+    #list_filter = ('site', 'everyone', 'superusers', 'staff', 'authenticated')
+    list_filter = ('everyone', 'superusers', 'staff', 'authenticated')
     raw_id_fields = ('users', 'groups')
     ordering = ('-id',)
 
@@ -55,14 +56,15 @@ class SwitchAdmin(M2MSitesMixin, admin.ModelAdmin):
     actions = [enable_switches, disable_switches]
     date_hierarchy = 'created'
     list_display = ('name', 'get_sites', 'active', 'note', 'created', 'modified')
-    list_filter = ('site', 'active',)
+    #list_filter = ('site', 'active',)
+    list_filter = ('active',)
     ordering = ('-id',)
 
 
 class SampleAdmin(M2MSitesMixin, admin.ModelAdmin):
     date_hierarchy = 'created'
     list_display = ('name', 'get_sites', 'percent', 'note', 'created', 'modified')
-    list_filter = ('site', )
+    #list_filter = ('site', )
     ordering = ('-id',)
 
 

@@ -15,9 +15,13 @@ class SiteTests(TestCase):
     def setUp(self):
         super(SiteTests, self).setUp()
         Site.objects.create(id=2, domain='example2.com', name='example2.com')
+        Site.objects.create(id=3, domain='example3.com', name='example3.com')
+        Site.objects.create(id=4, domain='example4.com', name='example4.com')
 
         self.site1 = Site.objects.get(name='example.com')
         self.site2 = Site.objects.get(name='example2.com')
+        self.site3 = Site.objects.get(name='example3.com')
+        self.site4 = Site.objects.get(name='example4.com')
 
     def test_switch_by_site(self):
         """ test that we can get different switch values by site """
@@ -28,6 +32,21 @@ class SiteTests(TestCase):
         self.assertTrue(waffle.switch_is_active(get(), name))
 
         with self.settings(SITE_ID=2):
+            self.assertFalse(waffle.switch_is_active(get(), name))
+
+    def test_switch_by_multisite(self):
+        name = "myswitch"
+        switch1 = Switch.objects.create(name=name, active=True, site=self.site1)
+        switch1.site.add(self.site2)
+        switch1.site.add(self.site3)
+        switch2 = Switch.objects.create(name=name, active=False, site=self.site4)
+
+        self.assertTrue(waffle.switch_is_active(get(), name))
+        with self.settings(SITE_ID=2):
+            self.assertTrue(waffle.switch_is_active(get(), name))
+        with self.settings(SITE_ID=3):
+            self.assertTrue(waffle.switch_is_active(get(), name))
+        with self.settings(SITE_ID=4):
             self.assertFalse(waffle.switch_is_active(get(), name))
 
     def test_switch_site_default(self):

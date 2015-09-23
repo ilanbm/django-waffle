@@ -64,9 +64,7 @@ class Flag(models.Model):
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Flag was last modified.'))
 
-    #site = models.ForeignKey(Site, blank=True, null=True,
-    #                         related_name='waffle_flags')
-    site = models.ManyToManyField(Site, blank=True, null=True,
+    site = models.ManyToManyField(Site, blank=True,
                                   related_name="waffle_flags_m2m")
 
     objects = FlagQuerySet.as_manager()
@@ -115,9 +113,7 @@ class Switch(models.Model):
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Switch was last modified.'))
 
-    #site = models.ForeignKey(Site, blank=True, null=True,
-    #                         related_name='waffle_switches')
-    site = models.ManyToManyField(Site, blank=True, null=True,
+    site = models.ManyToManyField(Site, blank=True,
                                   related_name="waffle_switches_m2m")
 
     objects = SwitchQuerySet.as_manager()
@@ -168,9 +164,7 @@ class Sample(models.Model):
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Sample was last modified.'))
 
-    #site = models.ForeignKey(Site, blank=True, null=True,
-    #                         related_name='waffle_samples')
-    site = models.ManyToManyField(Site, blank=True, null=True,
+    site = models.ManyToManyField(Site, blank=True,
                                   related_name="waffle_samples_m2m")
 
     objects = SampleQuerySet.as_manager()

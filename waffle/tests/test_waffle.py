@@ -293,7 +293,7 @@ class SwitchTests(TestCase):
         """Do not make two queries for an existing active switch."""
         switch = Switch.objects.create(name='myswitch', active=True)
         # Get the value once so that it will be put into the cache
-        assert waffle.switch_is_active(get(), name)
+        assert waffle.switch_is_active(get(), switch.name)
         queries = len(connection.queries)
         assert waffle.switch_is_active(get(), switch.name)
         self.assertEqual(queries, len(connection.queries), 'We should only make one query.')

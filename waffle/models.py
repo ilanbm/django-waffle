@@ -78,7 +78,7 @@ class Flag(models.Model):
 
     @staticmethod
     def get_flags_for_site(site):
-        return Flag.objects.filter(Q(site=site) | Q(all_sites_override=True))
+        return Flag.objects.filter(Q(site=site) | Q(all_sites_override=True)).distinct()
 
     def get_sites(self):
         if not self.all_sites_override:
@@ -139,7 +139,7 @@ class Switch(models.Model):
 
     @staticmethod
     def get_switches_for_site(site):
-        return Switch.objects.filter(Q(site=site) | Q(all_sites_override=True))
+        return Switch.objects.filter(Q(site=site) | Q(all_sites_override=True)).distinct()
 
     def get_sites(self):
         if not self.all_sites_override:
@@ -202,7 +202,7 @@ class Sample(models.Model):
 
     @staticmethod
     def get_samples_for_site(site):
-        return Sample.objects.filter(Q(site=site) | Q(all_sites_override=True))
+        return Sample.objects.filter(Q(site=site) | Q(all_sites_override=True)).distinct()
 
     def get_sites(self):
         if not self.all_sites_override:

@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 try:
     from django.utils import timezone as datetime
 except ImportError:
@@ -64,13 +66,25 @@ class Flag(models.Model):
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Flag was last modified.'))
 
+    all_sites_override = models.BooleanField(default=True, help_text=(
+        'When True this flag is used for all sites'
+        ' IMPORTANT: don\'t allow to create two flags with the same name'))
+
     site = models.ManyToManyField(Site, blank=True,
-                                  related_name="waffle_flags_m2m")
+                                  related_name="waffle_flags_m2m",
+                                  help_text="utilized only if `all_sites_override` is set to False")
 
     objects = FlagQuerySet.as_manager()
 
+    @staticmethod
+    def get_flags_for_site(site):
+        return Flag.objects.filter(Q(site=site) | Q(all_sites_override=True)).distinct()
+
     def get_sites(self):
-        return self.site.all()
+        if not self.all_sites_override:
+            return self.site.all()
+        else:
+            return Site.objects.all()
 
     def get_sites_json(self):
         return serializers.serialize("json", self.get_sites())
@@ -113,13 +127,25 @@ class Switch(models.Model):
     modified = models.DateTimeField(default=datetime.now, help_text=(
         'Date when this Switch was last modified.'))
 
+    all_sites_override = models.BooleanField(default=True, help_text=(
+        'When True this switch is used for all sites'
+        ' IMPORTANT: don\'t allow to create two switches with the same name'))
+
     site = models.ManyToManyField(Site, blank=True,
-                                  related_name="waffle_switches_m2m")
+                                  related_name="waffle_switches_m2m",
+                                  help_text="utilized only if `all_sites_override` is set to False")
 
     objects = SwitchQuerySet.as_manager()
 
+    @staticmethod
+    def get_switches_for_site(site):
+        return Switch.objects.filter(Q(site=site) | Q(all_sites_override=True)).distinct()
+
     def get_sites(self):
-        return self.site.all()
+        if not self.all_sites_override:
+            return self.site.all()
+        else:
+            return Site.objects.all()
 
     def get_sites_json(self):
         return serializers.serialize("json", self.get_sites())
@@ -165,12 +191,24 @@ class Sample(models.Model):
         'Date when this Sample was last modified.'))
 
     site = models.ManyToManyField(Site, blank=True,
-                                  related_name="waffle_samples_m2m")
+                                  related_name="waffle_samples_m2m",
+                                  help_text="utilized only if `all_sites_override` is set to False")
+
+    all_sites_override = models.BooleanField(default=True, help_text=(
+        'When True this sample is used for all sites'
+        ' IMPORTANT: don\'t allow to create two samples with the same name'))
 
     objects = SampleQuerySet.as_manager()
 
+    @staticmethod
+    def get_samples_for_site(site):
+        return Sample.objects.filter(Q(site=site) | Q(all_sites_override=True)).distinct()
+
     def get_sites(self):
-        return self.site.all()
+        if not self.all_sites_override:
+            return self.site.all()
+        else:
+            return Site.objects.all()
 
     def get_sites_json(self):
         return serializers.serialize("json", self.get_sites())
@@ -258,16 +296,16 @@ post_delete.connect(uncache_sample, sender=Sample,
 
 def cache_switch(**kwargs):
     switch = kwargs.get('instance')
-    for x in switch.get_sites():
+    for site in switch.get_sites():
         cache.add(keyfmt(get_setting('SWITCH_CACHE_KEY'),
-                         switch.name, x), switch)
+                         switch.name, site), switch)
 
 
 def uncache_switch(**kwargs):
     switch = kwargs.get('instance')
-    for x in switch.get_sites():
+    for site in Site.objects.all():
         cache.delete(keyfmt(get_setting('SWITCH_CACHE_KEY'),
-                            switch.name, x))
+                            switch.name, site))
     cache.delete(keyfmt(get_setting('ALL_SWITCHES_CACHE_KEY')))
 
 post_delete.connect(uncache_switch, sender=Switch,

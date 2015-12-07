@@ -23,16 +23,15 @@ def flag_is_active(request, flag_name):
     current_site = Site.objects.get_current(request)
     flag = cache.get(keyfmt(get_setting('FLAG_CACHE_KEY'),
                             flag_name, current_site))
+
     if flag is None:
-        try:
-            flag = Flag.objects.get(name=flag_name, site__in=[current_site])
-            cache_flag(instance=flag)
-        except Flag.DoesNotExist:
-            try:
-                flag = Flag.objects.get(name=flag_name, site__isnull=True)
-                cache_flag(instance=flag)
-            except Flag.DoesNotExist:
-                return get_setting('FLAG_DEFAULT')
+        flag = Flag.objects.filter(name=flag_name).first()
+        if flag is None:
+            return get_setting("FLAG_DEFAULT")
+        cache_flag(instance=flag)
+
+    if current_site not in flag.get_sites():
+        return False
 
     if get_setting('OVERRIDE'):
         if flag_name in request.GET:
@@ -117,18 +116,17 @@ def switch_is_active(request, switch_name):
     switch = cache.get(keyfmt(get_setting('SWITCH_CACHE_KEY'),
                               switch_name, current_site))
     if switch is None:
-        try:
-            switch = Switch.objects.get(name=switch_name,
-                                        site__in=[current_site])
-            cache_switch(instance=switch)
-        except Switch.DoesNotExist:
-            try:
-                switch = Switch.objects.get(name=switch_name,
-                                            site__isnull=True)
-                cache_switch(instance=switch)
-            except Switch.DoesNotExist:
-                return get_setting('SWITCH_DEFAULT')
-    return switch.active
+        switch = Switch.objects.filter(name=switch_name).first()
+        if switch is None:
+            return get_setting('SWITCH_DEFAULT')
+
+        cache_switch(instance=switch)
+
+    return switch.active and current_site in switch.get_sites()
+
+
+def probe_a_sample(sample):
+    return Decimal(str(random.uniform(0, 100))) <= sample.percent
 
 
 def sample_is_active(request, sample_name):
@@ -139,15 +137,10 @@ def sample_is_active(request, sample_name):
     sample = cache.get(keyfmt(get_setting('SAMPLE_CACHE_KEY'),
                               sample_name, current_site))
     if sample is None:
-        try:
-            sample = Sample.objects.get(name=sample_name,
-                                        site__in=[current_site])
-            cache_sample(instance=sample)
-        except Sample.DoesNotExist:
-            try:
-                sample = Sample.objects.get(name=sample_name, site__isnull=True)
-                cache_sample(instance=sample)
-            except Sample.DoesNotExist:
-                return get_setting('SAMPLE_DEFAULT')
+        sample = Sample.objects.filter(name=sample_name).first()
+        if sample is None:
+            return get_setting('SAMPLE_DEFAULT')
 
-    return Decimal(str(random.uniform(0, 100))) <= sample.percent
+        cache_sample(instance=sample)
+
+    return probe_a_sample(sample) and current_site in sample.get_sites()

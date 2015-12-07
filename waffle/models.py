@@ -68,7 +68,7 @@ class Flag(models.Model):
 
     all_sites_override = models.BooleanField(default=True, help_text=(
         'When True this flag is used for all sites'
-        'IMPORTANT: don\'t allow to create two flags with the same name'))
+        ' IMPORTANT: don\'t allow to create two flags with the same name'))
 
     site = models.ManyToManyField(Site, blank=True,
                                   related_name="waffle_flags_m2m",
@@ -129,7 +129,7 @@ class Switch(models.Model):
 
     all_sites_override = models.BooleanField(default=True, help_text=(
         'When True this switch is used for all sites'
-        'IMPORTANT: don\'t allow to create two switches with the same name'))
+        ' IMPORTANT: don\'t allow to create two switches with the same name'))
 
     site = models.ManyToManyField(Site, blank=True,
                                   related_name="waffle_switches_m2m",
@@ -196,7 +196,7 @@ class Sample(models.Model):
 
     all_sites_override = models.BooleanField(default=True, help_text=(
         'When True this sample is used for all sites'
-        'IMPORTANT: don\'t allow to create two samples with the same name'))
+        ' IMPORTANT: don\'t allow to create two samples with the same name'))
 
     objects = SampleQuerySet.as_manager()
 

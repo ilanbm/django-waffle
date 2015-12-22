@@ -9,10 +9,25 @@ from django.core import serializers
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.db import models
-from django.db.models.signals import post_save, post_delete, m2m_changed
-
+from django.db.models.signals import post_save, post_delete, m2m_changed, pre_save, pre_delete
 from waffle.compat import AUTH_USER_MODEL, cache
 from waffle.utils import get_setting, keyfmt
+
+
+LOCAL_CACHE = {}
+
+
+def get_all_sites():
+    if LOCAL_CACHE.get("all_sites") is None:
+        LOCAL_CACHE["all_sites"] = Site.objects.all()
+    return LOCAL_CACHE["all_sites"]
+
+
+def clear_all_site_cache(*args, **kwargs):
+    LOCAL_CACHE["all_sites"] = None
+
+pre_save.connect(clear_all_site_cache, sender=Site)
+pre_delete.connect(clear_all_site_cache, sender=Site)
 
 
 class FlagQuerySet(models.QuerySet):
@@ -84,7 +99,7 @@ class Flag(models.Model):
         if not self.all_sites_override:
             return self.site.all()
         else:
-            return Site.objects.all()
+            return get_all_sites()
 
     def get_sites_json(self):
         return serializers.serialize("json", self.get_sites())
@@ -145,7 +160,7 @@ class Switch(models.Model):
         if not self.all_sites_override:
             return self.site.all()
         else:
-            return Site.objects.all()
+            return get_all_sites()
 
     def get_sites_json(self):
         return serializers.serialize("json", self.get_sites())
@@ -208,7 +223,7 @@ class Sample(models.Model):
         if not self.all_sites_override:
             return self.site.all()
         else:
-            return Site.objects.all()
+            return get_all_sites()
 
     def get_sites_json(self):
         return serializers.serialize("json", self.get_sites())
@@ -226,45 +241,31 @@ def cache_flag(**kwargs):
     # action is included for m2m_changed signal. Only cache on the post_*.
     if not action or action in ['post_add', 'post_remove', 'post_clear']:
         f = kwargs.get('instance')
-        if f.get_sites():
-            for x in f.get_sites():
-                cache.add(keyfmt(get_setting('FLAG_CACHE_KEY'),
-                                 f.name, x), f)
-                cache.add(keyfmt(get_setting('FLAG_CACHE_KEY'),
-                                 f.name, x), f)
-                cache.add(keyfmt(get_setting('FLAG_USERS_CACHE_KEY'),
-                                 f.name, x), f.users.all())
-                cache.add(keyfmt(get_setting('FLAG_GROUPS_CACHE_KEY'),
-                                 f.name, x), f.groups.all())
-        else:
-            cache.add(keyfmt(get_setting('FLAG_CACHE_KEY'), f.name, None), f)
-            cache.add(keyfmt(get_setting('FLAG_CACHE_KEY'), f.name, None), f)
+        f_users = f.users.all()
+        f_groups = f.groups.all()
+        for x in f.get_sites():
+            cache.add(keyfmt(get_setting('FLAG_CACHE_KEY'),
+                             f.name, x), f)
+            cache.add(keyfmt(get_setting('FLAG_CACHE_KEY'),
+                             f.name, x), f)
             cache.add(keyfmt(get_setting('FLAG_USERS_CACHE_KEY'),
-                             f.name, None), f.users.all())
+                             f.name, x), f_users)
             cache.add(keyfmt(get_setting('FLAG_GROUPS_CACHE_KEY'),
-                             f.name, None), f.groups.all())
+                             f.name, x), f_groups)
 
 
 def uncache_flag(**kwargs):
     flag = kwargs.get('instance')
     data = []
-    if flag.get_sites():
-        for x in flag.get_sites():
-            data.append(keyfmt(get_setting('FLAG_CACHE_KEY'),
-                               flag.name, x))
-            data.append(keyfmt(get_setting('FLAG_USERS_CACHE_KEY'),
-                               flag.name, x))
-            data.append(keyfmt(get_setting('FLAG_GROUPS_CACHE_KEY'),
-                               flag.name, x))
-            data.append(keyfmt(get_setting('ALL_FLAGS_CACHE_KEY')))
-    else:
+    for x in get_all_sites():
         data.append(keyfmt(get_setting('FLAG_CACHE_KEY'),
-                               flag.name, None))
+                           flag.name, x))
         data.append(keyfmt(get_setting('FLAG_USERS_CACHE_KEY'),
-                               flag.name, None))
+                           flag.name, x))
         data.append(keyfmt(get_setting('FLAG_GROUPS_CACHE_KEY'),
-                               flag.name, None))
-        data.append(keyfmt(get_setting('ALL_FLAGS_CACHE_KEY')))
+                           flag.name, x))
+    data.append(keyfmt(get_setting('ALL_FLAGS_CACHE_KEY')))
+
     cache.delete_many(data)
 
 post_save.connect(uncache_flag, sender=Flag, dispatch_uid='save_flag')
@@ -284,7 +285,7 @@ def cache_sample(**kwargs):
 
 def uncache_sample(**kwargs):
     sample = kwargs.get('instance')
-    for x in sample.get_sites():
+    for x in get_all_sites():
         cache.set(keyfmt(get_setting('SAMPLE_CACHE_KEY'),
                          sample.name, x), None, 5)
     cache.delete(keyfmt(get_setting('ALL_SAMPLES_CACHE_KEY')))
@@ -303,7 +304,7 @@ def cache_switch(**kwargs):
 
 def uncache_switch(**kwargs):
     switch = kwargs.get('instance')
-    for site in Site.objects.all():
+    for site in get_all_sites():
         cache.delete(keyfmt(get_setting('SWITCH_CACHE_KEY'),
                             switch.name, site))
     cache.delete(keyfmt(get_setting('ALL_SWITCHES_CACHE_KEY')))
